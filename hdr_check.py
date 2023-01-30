@@ -1,23 +1,30 @@
 import cv2
+import numpy as np
 import matplotlib.pyplot as plt
 
-# Open HDR
-hdr = cv2.imread('E:\\spectrum-tuner\\final_room1.hdr', cv2.IMREAD_COLOR)
+# Load the HDR image using cv2
+img = cv2.imread('E:\\spectrum-tuner\\final_room1.hdr', cv2.IMREAD_UNCHANGED)
 
+#print(img[:,:,0])
 
 # Rescale 
-scale = 1
-hdr = cv2.resize(hdr, None, fx=scale, fy=scale, interpolation = cv2.INTER_AREA)
+scale = .1
+img = cv2.resize(img, None, fx=scale, fy=scale, interpolation = cv2.INTER_AREA)
 
-print(type(hdr))
-print(hdr.shape)
+# Convert the HDR image to a 8-bit representation
+img_8bit = np.uint8(img * 256)
 
-color = ('b', 'g', 'r')
+# Split the image into its RGB channels
+b, g, r = cv2.split(img_8bit)
 
-for i,col in enumerate(color):
-    histr = cv2.calcHist(hdr, [i], None, [1000], [0,256])
-    plt.plot(histr, color = col)
-    plt.xlim([0,256])
+# Compute the histograms for each channel
+hist_b = cv2.calcHist([b], [0], None, [256], [0, 256])
+hist_g = cv2.calcHist([g], [0], None, [256], [0, 256])
+hist_r = cv2.calcHist([r], [0], None, [256], [0, 256])
 
-#plt.plot(hist)
+# Plot the histograms using matplotlib
+plt.plot(hist_b, color='blue')
+plt.plot(hist_g, color='green')
+plt.plot(hist_r, color='red')
 plt.show()
+
